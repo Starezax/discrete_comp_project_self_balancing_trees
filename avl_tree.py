@@ -218,3 +218,50 @@ class AVLTree:
         :return: The node containing the value if found, otherwise None.
         """
         return self.search(self.root, value)
+
+# def main():
+#     """
+#     Main function to demonstrate the AVL tree operations.
+#     It creates an AVL tree, inserts values, searches for values,
+#     deletes a value, and displays the tree structure.
+#     """
+#     avl_tree = AVLTree()
+
+#     keys = [10, 20, 5, 6, 12, 30, 7, 17]
+#     for key in keys:
+#         avl_tree.insert_value(key)
+
+#     print("Пошук елементів:")
+#     for key in [6, 15, 30]:
+#         result = avl_tree.search_value(key)
+#         if result:
+#             print(f"Елемент {key} знайдено")
+#         else:
+#             print(f"Елемент {key} не знайдено")
+
+#     print("\nВидалення елементів:")
+#     print("Видаляємо 20")
+#     avl_tree.delete_value(20)
+#     result = avl_tree.search_value(20)
+#     if result:
+#         print("Елемент 20 все ще в дереві")
+#     else:
+#         print("Елемент 20 успішно видалено")
+
+#     print("\nСтруктура AVL-дерева:")
+#     display_tree(avl_tree.root)
+
+# def display_tree(root, level=0):
+#     """
+#     Displays the structure of the AVL tree in a readable format.
+#     It prints the tree in a top-down manner, showing the height of each node.
+#     :param root: The root of the tree or subtree to be displayed.
+#     :param level: The current level in the tree (used for indentation).
+#     """
+#     if root:
+#         display_tree(root.right, level + 1)
+#         print("    " * level + str(root.value) + " (" + str(root.height) + ")")
+#         display_tree(root.left, level + 1)
+
+# if __name__ == '__main__':
+#     main()
