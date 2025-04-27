@@ -317,39 +317,3 @@ class BTree:
             if not node.leaf:
                 for child in node.children:
                     self._preorder_traversal(child, result)
-
-
-def main():
-    """
-    Main function to demonstrate the B-tree implementation.
-    """
-    b = BTree(3)
-
-    keys = [10, 20, 5, 6, 12, 30, 7, 17]
-    print("Вставляємо елементи:", keys)
-    for key in keys:
-        b.insert(key)
-
-
-    print("\nInorder обхід (відсортований порядок):", b.inorder_traversal())
-    print("Preorder обхід (корінь, потім діти):", b.preorder_traversal())
-
-    print("\nПошук елементів:")
-    for key in [6, 15, 30]:
-        result = b.search(key)
-        if result:
-            node, index = result
-            print(f"Елемент {key} знайдено в вузлі з ключами {node.keys} на позиції {index}")
-        else:
-            print(f"Елемент {key} не знайдено")
-
-    print("\nВидалення елементів:")
-    for key_to_delete in [6, 30]:
-        print(f"Видаляємо {key_to_delete}")
-        b.delete(key_to_delete)
-
-        print(f"Inorder обхід після видалення {key_to_delete}:", b.inorder_traversal())
-
-
-if __name__ == '__main__':
-    main()
