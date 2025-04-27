@@ -219,49 +219,101 @@ class AVLTree:
         """
         return self.search(self.root, value)
 
-# def main():
-#     """
-#     Main function to demonstrate the AVL tree operations.
-#     It creates an AVL tree, inserts values, searches for values,
-#     deletes a value, and displays the tree structure.
-#     """
-#     avl_tree = AVLTree()
+    def inorder_traversal(self):
+        """
+        Performs an in-order traversal of the AVL tree.
+        In-order traversal visits the left subtree, then the root, then the right subtree.
+        :return: A list of values in in-order traversal order.
+        """
+        result = []
+        self._inorder_traversal(self.root, result)
+        return result
 
-#     keys = [10, 20, 5, 6, 12, 30, 7, 17]
-#     for key in keys:
-#         avl_tree.insert_value(key)
+    def _inorder_traversal(self, root, result):
+        """
+        Helper method for in-order traversal.
+        :param root: The root of the tree or subtree.
+        :param result: The list to store the traversal result.
+        """
+        if root:
+            self._inorder_traversal(root.left, result)
+            result.append(root.value)
+            self._inorder_traversal(root.right, result)
 
-#     print("Пошук елементів:")
-#     for key in [6, 15, 30]:
-#         result = avl_tree.search_value(key)
-#         if result:
-#             print(f"Елемент {key} знайдено")
-#         else:
-#             print(f"Елемент {key} не знайдено")
+    def preorder_traversal(self):
+        """
+        Performs a pre-order traversal of the AVL tree.
+        Pre-order traversal visits the root, then the left subtree, then the right subtree.
+        :return: A list of values in pre-order traversal order.
+        """
+        result = []
+        self._preorder_traversal(self.root, result)
+        return result
 
-#     print("\nВидалення елементів:")
-#     print("Видаляємо 20")
-#     avl_tree.delete_value(20)
-#     result = avl_tree.search_value(20)
-#     if result:
-#         print("Елемент 20 все ще в дереві")
-#     else:
-#         print("Елемент 20 успішно видалено")
+    def _preorder_traversal(self, root, result):
+        """
+        Helper method for pre-order traversal.
+        :param root: The root of the tree or subtree.
+        :param result: The list to store the traversal result.
+        """
+        if root:
+            result.append(root.value)
+            self._preorder_traversal(root.left, result)
+            self._preorder_traversal(root.right, result)
 
-#     print("\nСтруктура AVL-дерева:")
-#     display_tree(avl_tree.root)
+    def postorder_traversal(self):
+        """
+        Performs a post-order traversal of the AVL tree.
+        Post-order traversal visits the left subtree, then the right subtree, then the root.
+        :return: A list of values in post-order traversal order.
+        """
+        result = []
+        self._postorder_traversal(self.root, result)
+        return result
 
-# def display_tree(root, level=0):
-#     """
-#     Displays the structure of the AVL tree in a readable format.
-#     It prints the tree in a top-down manner, showing the height of each node.
-#     :param root: The root of the tree or subtree to be displayed.
-#     :param level: The current level in the tree (used for indentation).
-#     """
-#     if root:
-#         display_tree(root.right, level + 1)
-#         print("    " * level + str(root.value) + " (" + str(root.height) + ")")
-#         display_tree(root.left, level + 1)
+    def _postorder_traversal(self, root, result):
+        """
+        Helper method for post-order traversal.
+        :param root: The root of the tree or subtree.
+        :param result: The list to store the traversal result.
+        """
+        if root:
+            self._postorder_traversal(root.left, result)
+            self._postorder_traversal(root.right, result)
+            result.append(root.value)
 
-# if __name__ == '__main__':
-#     main()
+
+
+def main():
+    """
+    Main function to demonstrate the AVL tree implementation.
+    """
+    avl_tree = AVLTree()
+
+    keys = [10, 20, 5, 6, 12, 30, 7, 17]
+    print("Вставляємо елементи:", keys)
+    for key in keys:
+        avl_tree.insert_value(key)
+
+    print("\nInorder обхід (відсортований порядок):", avl_tree.inorder_traversal())
+    print("Preorder обхід (корінь, ліво, право):", avl_tree.preorder_traversal())
+    print("Postorder обхід (ліво, право, корінь):", avl_tree.postorder_traversal())
+
+    print("\nПошук елементів:")
+    for key in [6, 15, 30]:
+        result = avl_tree.search_value(key)
+        if result:
+            print(f"Елемент {key} знайдено")
+        else:
+            print(f"Елемент {key} не знайдено")
+
+    print("\nВидалення елементів:")
+    print("Видаляємо 20")
+    avl_tree.delete_value(20)
+
+
+    print("\nInorder обхід після видалення:", avl_tree.inorder_traversal())
+
+
+if __name__ == '__main__':
+    main()
