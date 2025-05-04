@@ -7,98 +7,168 @@ class DataManager:
     def __init__(self, db_dir="./db"):
         # Директорія для зберігання файлів бази даних
         self.db_dir = db_dir
-        # Словник для зберігання таблиць та їх схем
+        # Словник для зберігання баз даних та їх таблиць
+        # Формат: { db_name: { table_name: { 'columns': [...], 'tree_type': str, 'primary_key': str } } }
         self.databases = {}
         # Поточна вибрана база даних
         self.current_db = None
         # Ініціалізація сховища
         self._init_storage()
-        
+
     def _init_storage(self):
         """Ініціалізація структури сховища"""
-        # TODO: Створити директорію, якщо вона не існує
-        # TODO: Завантажити існуючі бази даних
-        pass
-    
+        os.makedirs(self.db_dir, exist_ok=True)
+        self._load_databases()
+
     def _load_databases(self):
         """Завантаження інформації про існуючі бази даних"""
-        # TODO: Завантажити meta.json, якщо він існує
-        pass
-    
+        meta_path = os.path.join(self.db_dir, 'meta.json')
+        if os.path.exists(meta_path):
+            with open(meta_path, 'r', encoding='utf-8') as f:
+                self.databases = json.load(f)
+        else:
+            self.databases = {}
+
     def _save_databases(self):
         """Збереження метаданих бази даних"""
-        # TODO: Зберегти інформацію у файл meta.json
-        pass
-    
+        meta_path = os.path.join(self.db_dir, 'meta.json')
+        with open(meta_path, 'w', encoding='utf-8') as f:
+            json.dump(self.databases, f, ensure_ascii=False, indent=2)
+
     def create_database(self, db_name):
         """Створення нової бази даних"""
-        # TODO: Перевірити чи база даних вже існує
-        # TODO: Створити директорію для бази даних
-        # TODO: Додати базу даних до метаданих
-        # TODO: Зберегти метадані
-        pass
-    
+        if db_name in self.databases:
+            raise ValueError(f"Database '{db_name}' already exists")
+        db_path = os.path.join(self.db_dir, db_name)
+        os.makedirs(db_path)
+        self.databases[db_name] = {}
+        self._save_databases()
+
     def use_database(self, db_name):
         """Вибір бази даних для використання"""
-        # TODO: Перевірити чи база даних існує
-        # TODO: Встановити поточну базу даних
-        pass
-    
+        if db_name not in self.databases:
+            raise ValueError(f"Database '{db_name}' does not exist")
+        self.current_db = db_name
+
     def create_table(self, table_name, columns, tree_type="avl"):
         """Створення нової таблиці в поточній базі даних"""
-        # TODO: Перевірити чи вибрана база даних
-        # TODO: Перевірити чи таблиця вже існує
-        # TODO: Створити метадані таблиці (стовпці, тип дерева, первинний ключ)
-        # TODO: Зберегти метадані
-        # TODO: Створити порожнє дерево-індекс
-        # TODO: Зберегти файл таблиці
-        pass
-    
+        if self.current_db is None:
+            raise ValueError("No database selected")
+        db_meta = self.databases[self.current_db]
+        if table_name in db_meta:
+            raise ValueError(f"Table '{table_name}' already exists in database '{self.current_db}'")
+        primary_key = columns[0]
+        db_meta[table_name] = {
+            'columns': columns,
+            'tree_type': tree_type,
+            'primary_key': primary_key,
+        }
+        self._save_databases()
+        tree = TreeFactory.create_tree(tree_type)
+        tree_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.tree")
+        with open(tree_path, 'wb') as f:
+            pickle.dump(tree, f)
+        data_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.json")
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+
     def insert(self, table_name, values):
         """Вставка запису в таблицю"""
-        # TODO: Перевірити чи вибрана база даних
-        # TODO: Перевірити чи таблиця існує
-        # TODO: Завантажити дані таблиці
-        # TODO: Отримати колонку первинного ключа
-        # TODO: Перевірити чи первинний ключ вже існує
-        # TODO: Вставити у дерево та дані
-        # TODO: Зберегти оновлені дані
-        pass
-    
+        if self.current_db is None:
+            raise ValueError("No database selected")
+        db_meta = self.databases[self.current_db]
+        if table_name not in db_meta:
+            raise ValueError(f"Table '{table_name}' does not exist")
+        meta = db_meta[table_name]
+        columns = meta['columns']
+        if len(values) != len(columns):
+            raise ValueError("Column count does not match value count")
+        record = dict(zip(columns, values))
+        key = record[meta['primary_key']]
+        tree_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.tree")
+        with open(tree_path, 'rb') as f:
+            tree = pickle.load(f)
+        if not tree.is_empty() and tree.search(key):
+            raise ValueError(f"Key '{key}' already exists in table '{table_name}'")
+        tree.insert(key)
+        data_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.json")
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        data.append(record)
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        with open(tree_path, 'wb') as f:
+            pickle.dump(tree, f)
+
     def select(self, table_name, conditions=None):
         """Вибрати записи з таблиці"""
-        # TODO: Перевірити чи вибрана база даних
-        # TODO: Перевірити чи таблиця існує
-        # TODO: Завантажити дані таблиці
-        # TODO: Отримати стовпці
-        # TODO: Якщо немає умов, повернути всі дані
-        # TODO: Розібрати умови та відфільтрувати дані
-        pass
-    
+        if self.current_db is None:
+            raise ValueError("No database selected")
+        db_meta = self.databases[self.current_db]
+        if table_name not in db_meta:
+            raise ValueError(f"Table '{table_name}' does not exist")
+        data_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.json")
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if not conditions:
+            return data
+        result = []
+        for rec in data:
+            if all(rec.get(col) == val for col, val in conditions.items()):
+                result.append(rec)
+        return result
+
     def update(self, table_name, updates, conditions=None):
         """Оновлення записів у таблиці"""
-        # TODO: Перевірити чи вибрана база даних
-        # TODO: Перевірити чи таблиця існує
-        # TODO: Завантажити дані таблиці
-        # TODO: Отримати стовпці та первинний ключ
-        # TODO: Для кожного ключа перевірити умову і оновити дані
-        # TODO: Якщо оновлюється первинний ключ, видалити старий запис і вставити новий
-        # TODO: Зберегти оновлені дані
-        pass
-    
+        if self.current_db is None:
+            raise ValueError("No database selected")
+        db_meta = self.databases[self.current_db]
+        if table_name not in db_meta:
+            raise ValueError(f"Table '{table_name}' does not exist")
+        meta = db_meta[table_name]
+        pk = meta['primary_key']
+        tree_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.tree")
+        data_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.json")
+        with open(tree_path, 'rb') as f:
+            tree = pickle.load(f)
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        for rec in data:
+            if not conditions or all(rec.get(col) == val for col, val in conditions.items()):
+                old_key = rec[pk]
+                for col, val in updates.items():
+                    rec[col] = val
+                new_key = rec[pk]
+                if new_key != old_key:
+                    tree.delete(old_key)
+                    tree.insert(new_key)
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        with open(tree_path, 'wb') as f:
+            pickle.dump(tree, f)
+
     def delete(self, table_name, conditions=None):
         """Видалення записів з таблиці"""
-        # TODO: Перевірити чи вибрана база даних
-        # TODO: Перевірити чи таблиця існує
-        # TODO: Завантажити дані таблиці
-        # TODO: Отримати стовпці
-        # TODO: Знайти ключі для видалення
-        # TODO: Видалити записи
-        # TODO: Зберегти оновлені дані
-        pass
-    
-    def _evaluate_condition(self, record, columns, condition):
-        """Оцінка умови для запису"""
-        # TODO: Отримати індекс стовпця
-        # TODO: Порівняти значення запису з умовою за допомогою відповідного оператора
-        pass
+        if self.current_db is None:
+            raise ValueError("No database selected")
+        db_meta = self.databases[self.current_db]
+        if table_name not in db_meta:
+            raise ValueError(f"Table '{table_name}' does not exist")
+        meta = db_meta[table_name]
+        pk = meta['primary_key']
+        tree_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.tree")
+        data_path = os.path.join(self.db_dir, self.current_db, f"{table_name}.json")
+        with open(tree_path, 'rb') as f:
+            tree = pickle.load(f)
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        new_data = []
+        for rec in data:
+            if conditions and all(rec.get(col) == val for col, val in conditions.items()):
+                tree.delete(rec[pk])
+            else:
+                new_data.append(rec)
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(new_data, f, ensure_ascii=False, indent=2)
+        with open(tree_path, 'wb') as f:
+            pickle.dump(tree, f)
