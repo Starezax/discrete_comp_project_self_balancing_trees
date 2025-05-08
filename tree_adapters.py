@@ -353,7 +353,7 @@ class TwoThreeTreeAdapter(SelfBalancingTree):
 
         :return: list - A list of keys in sorted order.
         """
-        return self.tree.inorder_traversal()
+        return self.tree.inorder()
 
     def preorder_traversal(self):
         """
@@ -362,7 +362,7 @@ class TwoThreeTreeAdapter(SelfBalancingTree):
 
         :return: list - A list of keys in pre-order.
         """
-        return self.tree.preorder_traversal()
+        return self.tree.preorder()
 
     def is_empty(self):
         """
