@@ -1,3 +1,5 @@
+""" B-tree """
+
 class BTreeNode:
     def __init__(self, leaf=True):
         self.leaf = leaf
@@ -112,30 +114,21 @@ class BTree:
             self._delete(node.children[child_index], k)
 
     def _get_predecessor(self, node, index):
-        """
-        Find the predecessor of the key at node.keys[index]
-        The predecessor is the rightmost key in the subtree rooted at node.children[index]
-        """
+
         curr = node.children[index]
         while not curr.leaf:
             curr = curr.children[-1]
         return curr.keys[-1]
 
     def _get_successor(self, node, index):
-        """
-        Find the successor of the key at node.keys[index]
-        The successor is the leftmost key in the subtree rooted at node.children[index+1]
-        """
+
         curr = node.children[index + 1]
         while not curr.leaf:
             curr = curr.children[0]
         return curr.keys[0]
 
     def _merge_children(self, node, index):
-        """
-        Merge node.children[index+1] into node.children[index]
-        This includes bringing down the key node.keys[index]
-        """
+
         left_child = node.children[index]
         right_child = node.children[index + 1]
 
@@ -149,10 +142,7 @@ class BTree:
         node.children.pop(index + 1)
 
     def _fill_child(self, node, index):
-        """
-        Ensures that node.children[index] has at least t keys by either borrowing
-        from siblings or merging with a sibling.
-        """
+
         if index > 0 and len(node.children[index - 1].keys) >= self.t:
             self._borrow_from_prev(node, index)
 
@@ -166,9 +156,7 @@ class BTree:
                 self._merge_children(node, index)
 
     def _borrow_from_prev(self, node, index):
-        """
-        Borrow a key from the previous child of node for node.children[index]
-        """
+
         child = node.children[index]
         sibling = node.children[index - 1]
 
@@ -180,9 +168,7 @@ class BTree:
             child.children.insert(0, sibling.children.pop())
 
     def _borrow_from_next(self, node, index):
-        """
-        Borrow a key from the next child of node for node.children[index]
-        """
+
         child = node.children[index]
         sibling = node.children[index + 1]
 
@@ -219,4 +205,3 @@ class BTree:
             if not node.leaf:
                 for child in node.children:
                     self._preorder_traversal(child, result)
-

@@ -1,4 +1,4 @@
-""" 2 -3 tree implementation """
+""" 2-3 tree implementation """
 
 class Node:
     def __init__(self, keys=None, children=None):
@@ -17,7 +17,6 @@ class TwoThreeTree:
         self.root = None
 
     def search(self, key, node=None):
-        """Повертає True, якщо ключ є в дереві."""
         if node is None:
             node = self.root
         if node is None:
@@ -30,7 +29,6 @@ class TwoThreeTree:
         return self.search(key, node.children[-1]) if node.children else False
 
     def insert(self, key):
-        """Вставка ключа в дерево."""
         if self.root is None:
             self.root = Node(keys=[key])
             return
@@ -63,7 +61,6 @@ class TwoThreeTree:
             self.root = Node(keys=[promote], children=[left, right])
 
     def _split_node(self, node):
-        """Розділяє вузол із 3 ключами на два 2-ключові та повертає (середній ключ, лівий вузол, правий вузол)."""
         k1, k2, k3 = node.keys
         if node.is_leaf():
             left = Node(keys=[k1])
@@ -75,7 +72,6 @@ class TwoThreeTree:
         return k2, left, right
 
     def delete(self, key):
-        """Видалення ключа з дерева."""
         if self.root is None:
             return
 
@@ -144,7 +140,6 @@ class TwoThreeTree:
                 parent.children.pop(idx + 1)
 
         def _find_parent(curr, target, parent=None):
-            """Знаходить батьківський вузол і індекс цільового серед його дітей."""
             if curr is target:
                 return parent, None
             if curr.is_leaf():
@@ -163,7 +158,6 @@ class TwoThreeTree:
 
 
     def inorder(self, node=None, res=None):
-        """In-order обхід: повертає відсортований список ключів."""
         if res is None:
             res = []
         if node is None:
@@ -180,7 +174,6 @@ class TwoThreeTree:
         return res
 
     def preorder(self, node=None, res=None):
-        """Pre-order обхід: вузол → діти."""
         if res is None:
             res = []
         if node is None:

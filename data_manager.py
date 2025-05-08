@@ -1,3 +1,5 @@
+""" data manager """
+
 from tree_factory import TreeFactory
 import json
 import os
@@ -5,23 +7,17 @@ import pickle
 
 class DataManager:
     def __init__(self, db_dir="./db"):
-        # Директорія для зберігання файлів бази даних
         self.db_dir = db_dir
-        # Словник для зберігання баз даних та їх таблиць
-        # Формат: { db_name: { table_name: { 'columns': [...], 'tree_type': str, 'primary_key': str } } }
+
         self.databases = {}
-        # Поточна вибрана база даних
         self.current_db = None
-        # Ініціалізація сховища
         self._init_storage()
 
     def _init_storage(self):
-        """Ініціалізація структури сховища"""
         os.makedirs(self.db_dir, exist_ok=True)
         self._load_databases()
 
     def _load_databases(self):
-        """Завантаження інформації про існуючі бази даних"""
         meta_path = os.path.join(self.db_dir, 'meta.json')
         if os.path.exists(meta_path):
             with open(meta_path, 'r', encoding='utf-8') as f:
@@ -30,13 +26,11 @@ class DataManager:
             self.databases = {}
 
     def _save_databases(self):
-        """Збереження метаданих бази даних"""
         meta_path = os.path.join(self.db_dir, 'meta.json')
         with open(meta_path, 'w', encoding='utf-8') as f:
             json.dump(self.databases, f, ensure_ascii=False, indent=2)
 
     def create_database(self, db_name):
-        """Створення нової бази даних"""
         if db_name in self.databases:
             raise ValueError(f"Database '{db_name}' already exists")
         db_path = os.path.join(self.db_dir, db_name)
@@ -45,13 +39,11 @@ class DataManager:
         self._save_databases()
 
     def use_database(self, db_name):
-        """Вибір бази даних для використання"""
         if db_name not in self.databases:
             raise ValueError(f"Database '{db_name}' does not exist")
         self.current_db = db_name
 
     def create_table(self, table_name, columns, tree_type="avl"):
-        """Створення нової таблиці в поточній базі даних"""
         if self.current_db is None:
             raise ValueError("No database selected")
         db_meta = self.databases[self.current_db]
@@ -73,7 +65,6 @@ class DataManager:
             json.dump([], f, ensure_ascii=False, indent=2)
 
     def insert(self, table_name, values):
-        """Вставка запису в таблицю"""
         if self.current_db is None:
             raise ValueError("No database selected")
         db_meta = self.databases[self.current_db]
@@ -101,7 +92,6 @@ class DataManager:
             pickle.dump(tree, f)
 
     def select(self, table_name, conditions=None):
-        """Вибрати записи з таблиці"""
         if self.current_db is None:
             raise ValueError("No database selected")
         db_meta = self.databases[self.current_db]
@@ -119,7 +109,6 @@ class DataManager:
         return result
 
     def update(self, table_name, updates, conditions=None):
-        """Оновлення записів у таблиці"""
         if self.current_db is None:
             raise ValueError("No database selected")
         db_meta = self.databases[self.current_db]
@@ -148,7 +137,6 @@ class DataManager:
             pickle.dump(tree, f)
 
     def delete(self, table_name, conditions=None):
-        """Видалення записів з таблиці"""
         if self.current_db is None:
             raise ValueError("No database selected")
         db_meta = self.databases[self.current_db]

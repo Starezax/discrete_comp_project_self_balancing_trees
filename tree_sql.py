@@ -1,29 +1,17 @@
-''''tree sql'''
+""" Tree SQL """
+
 import argparse
 import shlex
 from data_manager import DataManager
 
 class TreeSQL:
-    """
-    TreeSQL -class for parsing and executing SQL-like commands.
-    This class provides an interface for creating databases, tables, and performing CRUD operations.
-    """
+
     def __init__(self):
-        """
-        Initialize the TreeSQL class with a DataManager instance.
-        The DataManager is responsible for managing the databases and tables.
-        """
+
         self.data_manager = DataManager()
 
     def parse_command(self, command):
-        """
-        Parse the input command and execute the corresponding action.
-        The command can be a SQL-like command for creating databases, tables, 
-        and performing CRUD operations.
 
-        :param command: str - The SQL-like command to be executed
-        :return: str - The result of the command execution or an error message.
-        """
         tokens = shlex.split(command)
         if not tokens:
             return "Пуста команда"
@@ -48,15 +36,7 @@ class TreeSQL:
         return "Невідома команда"
 
     def create_table_command(self, tokens):
-        """
-        Create a table in the current database.
-        The command should be in the format: CREATE TABLE table_name (column1, column2, ...)
-        Optionally, a tree type can be specified using the "USING" keyword.
-        The default tree type is "avl".
-        
-        :param tokens: list - The tokens of the command after splitting
-        :return: str - The result of the table creation or an error message.
-        """
+
         table_name = tokens[0]
         tree_type = "avl"
 
@@ -72,14 +52,7 @@ class TreeSQL:
         return self.data_manager.create_table(table_name, columns, tree_type)
 
     def insert_command(self, tokens):
-        """
-        Insert a record into a table.
-        The command should be in the format: INSERT INTO table_name VALUES (value1, value2, ...)
-        The values should be separated by commas and can be strings, integers, or floats.
 
-        :param tokens: list - The tokens of the command after splitting
-        :return: str - The result of the insertion or an error message.
-        """
         try:
             table_name = tokens[2]
             values_index = tokens.index("VALUES")
@@ -93,14 +66,7 @@ class TreeSQL:
             return f"Помилка вставки: {e}"
 
     def select_command(self, tokens):
-        """
-        Select records from a table.
-        The command should be in the format: SELECT * FROM table_name WHERE condition
-        The condition is optional and can be used to filter the results.
-        
-        :param tokens: list - The tokens of the command after splitting
-        :return: str - The result of the selection or an error message.
-        """
+
         try:
             from_index = tokens.index("FROM")
             table_name = tokens[from_index + 1]
@@ -117,15 +83,7 @@ class TreeSQL:
             return f"Помилка SELECT: {e}"
 
     def update_command(self, tokens):
-        """
-        Update records in a table.
-        The command should be in the format: UPDATE table_name SET field1=value1, field2=value2
-        WHERE condition
-        The condition is optional and can be used to filter the records to be updated.
 
-        :param tokens: list - The tokens of the command after splitting
-        :return: str - The result of the update or an error message.
-        """
         try:
             table_name = tokens[1]
             set_index = tokens.index("SET")
@@ -145,14 +103,7 @@ class TreeSQL:
             return f"Помилка UPDATE: {e}"
 
     def delete_command(self, tokens):
-        """
-        Delete records from a table.
-        The command should be in the format: DELETE FROM table_name WHERE condition
-        The condition is optional and can be used to filter the records to be deleted.
 
-        :param tokens: list - The tokens of the command after splitting
-        :return: str - The result of the deletion or an error message.
-        """
         try:
             table_name = tokens[2]
             condition = None
@@ -166,16 +117,7 @@ class TreeSQL:
             return f"Помилка DELETE: {e}"
 
     def _parse_value(self, value):
-        """
-        Helper method to parse a value from the command.
-        This method converts the value to its appropriate type (int, float, or string).
-        If the value is enclosed in single quotes, it is treated as a string.
-        If it can be converted to an integer or float, it is converted accordingly.
-        Otherwise, it is returned as a string.
 
-        :param value: str - The value to be parsed
-        :return: int, float, or str - The parsed value
-        """
         if value.startswith("'") and value.endswith("'"):
             return value.strip("'")
         try:
@@ -187,11 +129,7 @@ class TreeSQL:
                 return value
 
 def main():
-    """
-    Main function to run the TreeSQL command line interface.
-    This function uses argparse to parse command line arguments and 
-    execute the corresponding actions.
-    """
+
     parser = argparse.ArgumentParser(description="Інтерфейс команд для роботи з TreeSQL")
     parser.add_argument("--cmd", type=str, help="SQL-подібна команда")
     args = parser.parse_args()
